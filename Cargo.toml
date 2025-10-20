@@ -1,5 +1,5 @@
 [package]
-name = "app-example-config"
+name = "example-config"
 version = "0.1.0"
 edition = "2024"
 
