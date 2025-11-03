@@ -6,7 +6,9 @@ async fn main() {
     let app = Router::new().route("/", get(handler));
 
     // run it
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:8200")
+    let port = std::env::var("HTTP_PORT").unwrap_or_else(|_| "8200".to_string());
+
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port))
         .await
         .unwrap();
     println!("listening on {}", listener.local_addr().unwrap());
@@ -14,5 +16,6 @@ async fn main() {
 }
 
 async fn handler() -> Html<&'static str> {
+    println!("Handling request");
     Html("<h1>Hello, World!</h1>")
 }
