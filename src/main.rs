@@ -15,7 +15,44 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
-async fn handler() -> Html<&'static str> {
-    println!("Handling request");
-    Html("<h1>Hello, World!</h1>")
+async fn handler() -> Html<String> {
+    let config_file_path: Option<String> = std::env::var("LORES_APP_CONFIG_FILE_PATH").ok();
+    let config_text: Option<String> = match config_file_path {
+        Some(path) => {
+            println!("Looking for config file at: {:?}", path);
+            let config_text = load_config_text(&path);
+            if config_text.is_none() {
+                println!(" -- File not found");
+            }
+            config_text
+        }
+        None => {
+            println!("No config file path provided");
+            None
+        }
+    };
+
+    Html(format!(
+        r#"
+    <html>
+        <head>
+            <title>Config Example</title>
+        </head>
+        <body>
+            <h1>LoRes App: Config Example</h1>
+            <p>This application demonstrates configuration of a LoRes App. Set the configuration as a Node Steward using LoRes Node. That config will be provided to this app as a JSON file, and once
+            you have created it, it will be displayed below:</p>
+
+            <code>
+                <pre>{}</pre>
+            </code>
+        </body>
+    </html>
+    "#,
+        { config_text.unwrap_or_else(|| "No config file found or configured".to_string()) }
+    ))
+}
+
+fn load_config_text(path: &str) -> Option<String> {
+    std::fs::read_to_string(path).ok()
 }
